@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@font-face {
+    font-family: 'Eczar-Regular';
+    src: url('./assets/fonts/Eczar/static/Eczar-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Eczar-Bold';
+    src: url('./assets/fonts/Eczar/static/Eczar-Bold.ttf') format('truetype');
+}
+
+
+@font-face {
+    font-family: 'Lato-Regular';
+    src: url('./assets/fonts/Lato/Lato-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Lato-Bold';
+    src: url('./assets/fonts/Lato/Lato-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'UbuntuMono-Regular';
+    src: url('./assets/fonts/Ubuntu_Mono/UbuntuMono-Regular.ttf') format('truetype');
+}
+  
+@font-face {
+    font-family: 'UbuntuMono-Bold';
+    src: url('./assets/fonts/Ubuntu_Mono/UbuntuMono-Bold.ttf') format('truetype');
+}
+  
+@layer components { 
+    body {
+        font-family: 'Lato-Regular', sans-serif;
+        font-weight: 400;
+        @apply text-gray-900;
+    } 
+}
