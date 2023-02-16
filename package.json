@@ -11,12 +11,11 @@
   "author": "Clay Graham",
   "license": "ISC",
   "dependencies": {
-    "@ledgerhq/hw-app-xrp": "^6.27.11",
-    "@ledgerhq/hw-transport": "^6.28.0",
-    "@ledgerhq/hw-transport-u2f": "^5.36.0-deprecated",
-    "@ledgerhq/hw-transport-webhid": "^6.27.11",
-    "@ledgerhq/hw-transport-webusb": "^6.27.11",
+    "@ledgerhq/devices": "^8.0.0",
+    "@ledgerhq/hw-app-xrp": "6.27.6",
+    "@ledgerhq/hw-transport-webhid": "6.27.6",
     "@ledgerhq/logs": "^6.10.1",
+    "await-to-js": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropdown": "^1.11.0",
@@ -37,5 +36,8 @@
     "stream-browserify": "^3.0.0",
     "tailwindcss": "^3.2.4",
     "util": "^0.12.5"
+  },
+  "alias": {
+    "@ledgerhq/devices": "@ledgerhq/devices/lib-es"
   }
 }

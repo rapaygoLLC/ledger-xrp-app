@@ -1,8 +1,3 @@
-// import Transport from "@ledgerhq/hw-transport-webhid";
-// import Transport from "@ledgerhq/hw-transport-u2f"; // for browser
-import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-// import Transport from '@ledgerhq/hw-transport'
-// import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import Xrp from "@ledgerhq/hw-app-xrp";
 import { encode } from 'ripple-binary-codec';
 
