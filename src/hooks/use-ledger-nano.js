@@ -1,6 +1,7 @@
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import to from 'await-to-js'
 import AppXrp from '@ledgerhq/hw-app-xrp'
+import { encode, decode } from 'ripple-binary-codec';
 
 const UNRESPONSIVE_DEVICE = {
     error: 'UNRESPONSIVE_DEVICE',
@@ -48,6 +49,40 @@ export const useLedgerNano = () => {
     }
   }
 
+  const signTransaction = async (
+    transaction,
+    accountIndex = 0, // change that to get details of accounts at different indexes
+    keyIndex = 0, 
+    ledgerTransport) => 
+  {
+    let transport = ledgerTransport
+    if (!transport) {
+      transport = await getLedgerTransport()
+      if (!transport) {
+        return undefined
+      }
+    }
+
+    const xrp = new AppXrp(transport)
+    console.log("signTransaction transaction", transaction);
+
+    try {
+      const bip32Path = `44'/144'/${accountIndex}'/0/${keyIndex}`;
+      const txe = encode(transaction);
+      const txResult = await xrp.signTransaction(bip32Path, txe);
+      console.log("signTransaction txResult", txResult);
+      return { txResult, bip32Path }
+    } 
+    catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        return
+        // handleError(error)
+      }
+      return undefined
+    }  
+  }
+
   /**
    * Function to retrieve details about a specific XRP Account.
    *
@@ -86,7 +121,7 @@ export const useLedgerNano = () => {
     } catch (error) {
       if (error instanceof Error) {
         console.error(error)
-        return
+        return error
         // handleError(error)
       }
       return undefined
@@ -94,6 +129,7 @@ export const useLedgerNano = () => {
   }
 
   return {
-    getXrpAccount
+    getXrpAccount,
+    signTransaction,
   }
 }
