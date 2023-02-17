@@ -23,7 +23,8 @@ export const XrpService = {
     async submitAndWait (prepared, signedTransaction) {
         const client = new Client(rippleServer);
         await client.connect();
-        prepared.TxnSignature = signedTransaction.txResult;  
+        prepared.TxnSignature = signedTransaction;  
+        console.log("prepared", prepared);
         const txr = await client.submitAndWait(prepared)
         .catch(e=> 
         {
