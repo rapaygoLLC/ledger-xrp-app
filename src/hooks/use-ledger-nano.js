@@ -1,7 +1,7 @@
 import TransportWebHID from '@ledgerhq/hw-transport-webhid'
 import to from 'await-to-js'
 import AppXrp from '@ledgerhq/hw-app-xrp'
-import { encode, decode } from 'ripple-binary-codec';
+import { encode, encodeQuality, decode } from 'ripple-binary-codec';
 
 const UNRESPONSIVE_DEVICE = {
     error: 'UNRESPONSIVE_DEVICE',
@@ -49,6 +49,44 @@ export const useLedgerNano = () => {
     }
   }
 
+  // secp256k1 is the default curve used by XRP
+  const signPayload = async (
+    payload,
+    accountIndex = 0, // change that to get details of accounts at different indexes
+    keyIndex = 0, 
+    ledgerTransport) => 
+  {
+    let transport = ledgerTransport
+    if (!transport) {
+      transport = await getLedgerTransport()
+      if (!transport) {
+        return undefined
+      }
+    }
+
+    const xrp = new AppXrp(transport)
+    console.log("sign payload", payload);
+
+    try {
+      const bip32Path = `44'/144'/${accountIndex}'/0/${keyIndex}`;
+      const txe = encode(payload);
+      const signedPayload = await xrp.signTransaction(bip32Path, txe);
+      console.log("signTransaction signedPayload", signedPayload);
+      return { signedPayload, bip32Path }
+    } 
+    catch (error) {
+      if (error instanceof Error) {
+        console.error(error)
+        return
+        // handleError(error)
+      }
+      return undefined
+    }  
+  }
+
+
+
+  // secp256k1 is the default curve used by XRP
   const signTransaction = async (
     transaction,
     accountIndex = 0, // change that to get details of accounts at different indexes
@@ -131,5 +169,6 @@ export const useLedgerNano = () => {
   return {
     getXrpAccount,
     signTransaction,
+    signPayload,
   }
 }

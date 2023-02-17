@@ -1,5 +1,5 @@
 import React, {useEffect, useState } from "react"
-
+import { Base64 } from 'js-base64';
 
 import "./styles.css";
 import { useLedgerNano } from "./hooks/use-ledger-nano";
@@ -20,6 +20,108 @@ const xrpToDrops = (xrp) => {
 const dropsToXrp = (drops) => {
     return drops / 1000000;
 }
+
+const MintNft = ({ledgerAccount}) => {
+    const [minted, setMinted] = useState(false);
+    const [mintedNft, setMintedNft] = useState("");
+    const { signTransaction } = useLedgerNano();
+
+    const [mintPayload, setMintPayload] = useState(false);
+    const [mintSig, setMintSig] = useState(false);
+
+    const onMintHandler = () => {
+        const mintPayload = {
+        	Account: ledgerAccount.address,
+        	TransactionType: "NFTokenMint",
+        	Flags: 8,
+        	SigningPubKey: "",
+        	NFTokenTaxon: 0,
+        	TransferFee: 1000,
+        	URI: "697066733a2f2f516d626d4e657a4d734536774a786e526272654768474e4c6d524b45744a53346d61427a4d4a4d53754a7068506b"
+        }
+        setMintPayload(mintPayload);
+        signTransaction(mintPayload)
+        .then((result) => {
+            console.log("signTransaction result", result);
+            setMintSig(result.txResult)
+        })
+        .catch((error) => {
+            console.log("signTransaction error", error);
+        })
+    }
+
+    const onMintSendHandler = () => {
+        console.log("sending mintSig", mintSig);
+    }
+
+    return (
+        <div className="bg-slate-200 rounded p-4">
+            <div className="text-slate-800 text-2xl font-bold">Mint NFT</div>
+            <div className="flex flex-row items-center justify-end w-full">
+                {mintSig?
+                <button className="bg-blue-300 mb-2 p-2 rounded-lg hover:bg-blue-200" 
+                    onClick={onMintSendHandler}>Send Signed NFT Mint Payload</button>:
+                <button className="bg-blue-300 mb-2 p-2 rounded-lg hover:bg-blue-200" 
+                    onClick={onMintHandler}>Sign Mint NFT Payload</button>}
+            </div>
+            {minted && <div>
+                <p>Minted NFT:</p>
+                <p className="break-all font-mono">{mintedNft}</p>
+            </div>}
+        </div>
+    )
+};
+
+const GenerateJwt = ({ledgerAccount}) => {
+    const [header, setHeader] = useState({
+        "alg": "SECP256K1",
+        "typ": "JWT"
+    });
+    const [signedPayload, setSignedPayload] = useState("");
+    const [payload, setPayload] = useState("");
+    const [jwt, setJwt] = useState("");
+    const { signPayload } = useLedgerNano();
+
+    const onSignHandler = () => {
+        const d = new Date();
+        const exp = d.getTime() + (1000*60*60*24)
+        const jwtb = {
+            "pk": ledgerAccount.publicKey,
+            "sub": ledgerAccount.address,
+            "exp": exp,
+            "iat": d.getTime()
+        }
+        setPayload(jwtb);
+
+        const encodedPayload = `${Base64.encode(JSON.stringify(payload)).replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "")}`;
+
+        signPayload(jwtb)
+        .then((result) => {
+            console.log("signTransaction result", result);
+            setSignedPayload(result.signedPayload);
+            setJwt(`${encodedPayload}.${result.signedPayload}`);
+        })
+        .catch((error) => {
+            console.log("signTransaction error", error);
+        })
+    }
+
+    return (
+        <div className="bg-slate-200 rounded p-4">
+            <div className="text-slate-800 text-2xl font-bold">Generate JWT</div>
+            <div className="flex flex-row items-center justify-end w-full">
+                <button className="bg-blue-300 mb-2 p-2 rounded-lg hover:bg-blue-200" onClick={onSignHandler}>Sign JWT</button>
+            </div>
+            {jwt && <div>
+                <p>JWT:</p>
+                <p className="break-all font-mono">{jwt}</p>
+            </div>}
+        </div>
+    )
+}
+
 
 const PaymentForm = ({ledgerAccount, accountData}) => {
     const [amount, setAmount] = useState(0);
@@ -95,7 +197,9 @@ const PaymentForm = ({ledgerAccount, accountData}) => {
 
     return (
         <>
-        <div className="p-1 border-1 bg-slate-200 rounded mb-2">
+        <div className="bg-slate-200 rounded p-4">
+            <div className="text-slate-800 text-2xl font-bold">Sign Payment Tx</div>
+                <p className="mb-2">Use the ledger device to sign a payment payload.</p>   
             {error && <div className="bg-red-200 text-red-800 p-2 rounded">{error}</div>}
             <p className="mb-2">Pay a specific address in XRP and use the ledger to sign.</p>
             <form onSubmit={onSubmitHandler}>
@@ -111,7 +215,7 @@ const PaymentForm = ({ledgerAccount, accountData}) => {
                     </label>
                     <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="destination" type="text" placeholder="Destination" value={destination} onChange={(e) => setDestination(e.target.value)} />
                 </div>
-                <div className="flex items-center justify-end">
+                <div className="flex flex-row items-center justify-end w-full">
                     <button className="bg-blue-300 mb-2 p-2 rounded-lg hover:bg-blue-200" type="submit">
                         Create Payment Tx
                     </button>
@@ -121,9 +225,9 @@ const PaymentForm = ({ledgerAccount, accountData}) => {
         {payment &&
         <div className="mb-2 p-1">
             <div className="mb-2 p-1">
-                <div className="text-slate-800 text-lg font-bold">Payment Tx</div>
+                <div className="text-slate-800 text-lg font-bold">Sign Payment Tx</div>
                 <div className="mb-2">
-                    <pre className="overflow-x-auto font-mono font-bold p-2 bg-slate-700 text-yellow-400 rounded">
+                    <pre className="max-w-[800] overflow-x-auto font-mono font-bold p-2 bg-slate-700 text-yellow-400 rounded">
                         {JSON.stringify(payment,null,4)}</pre>
                 </div>
             </div>
@@ -149,7 +253,7 @@ const PaymentForm = ({ledgerAccount, accountData}) => {
         <div className="mb-2 p-1">
             <div className="text-slate-800 text-lg font-bold">Transaction Result</div>
             <div className="mb-2">
-                <pre className="overflow-x-auto font-mono font-bold p-2 bg-slate-700 text-yellow-400 rounded">
+                <pre className="max-w-[800] overflow-x-auto font-mono font-bold p-2 bg-slate-700 text-yellow-400 rounded">
                     {JSON.stringify(txResult,null,4)}</pre>
             </div>
         </div>
@@ -185,35 +289,40 @@ export function App() {
     }  
 
     return (
-    <div className="flex flex-col">
-        <div className="text-slate-800 p-6 text-2xl">Hello Ledger for XRP</div>
-        <div className="m-4 p-1">
-            {error && <div className="bg-red-200 text-red-800 p-2 rounded">{error}</div>}
-            <p className="mb-2">This is a simple example of how to use the Ledger Nano S with XRP. Pressing the button will give you the details of the account with the following bip path: 44'/144'/0/0/0</p>
-
-            <button className="bg-blue-300 mb-2 p-2 rounded-lg hover:bg-blue-200" onClick={onClickHandler}>Get Account Details</button>
-        </div>
-        {ledgerAccount && accountInfo?.account_data &&
-        <div className="m-3 p-1">
-            <div className="mb-4 p-1">
-                <div className="text-slate-800 text-lg font-bold">Account Data</div>
-                <div className="mb-2">
-                    <pre className="font-mono font-bold 
-                        p-2 bg-slate-700 text-yellow-400 rounded">
-                        {ledgerAccount && JSON.stringify(accountInfo?.account_data,null,4)}</pre>
+        <div className="flex flex-row justify-center">
+            <div className="flex flex-col max-w-[800] items-center">
+                <div className="text-slate-800 p-6 text-3xl font-bold">Hello Ledger for XRP</div>
+                <div className="m-4 p-1">
+                    {error && <div className="bg-red-200 text-red-800 p-2 rounded">{error}</div>}
+                    <p className="mb-2">This is a simple example of how to use the Ledger Nano S with XRP. Pressing the button will give you the details of the account with the following bip path: <span className="font-mono font-bold">44'/144'/0/0/0</span></p>
+                    <div className="flex flex-row justify-end">
+                        <button className="bg-blue-300 p-2 rounded-lg hover:bg-blue-200" onClick={onClickHandler}>Get Account Details</button>
+                    </div>         
                 </div>
-            
-                <p>Address: {ledgerAccount.address}</p>
-                <p>Public Key: {ledgerAccount.publicKey}</p>
+                {ledgerAccount && accountInfo?.account_data &&
+                <div className="m-4 p-1">
+                    <div className="mb-4 p-1">
+                        <div className="text-slate-800 text-lg font-bold">Account Data</div>
+                        <div className="mb-2">
+                            <pre className="max-w-[800] overflow-x-auto font-mono font-bold 
+                                p-2 bg-slate-700 text-yellow-400 rounded">
+                                {ledgerAccount && JSON.stringify(accountInfo?.account_data,null,4)}</pre>
+                        </div>
+                    
+                        <p>Address: <span className="font-mono font-bold">{ledgerAccount.address}</span></p>
+                        <p>Public Key: <span className="font-mono font-bold">{ledgerAccount.publicKey}</span></p>
+                    </div>
+                    <div className="mb-4 p-1">
+                        <MintNft ledgerAccount={ledgerAccount}/>
+                    </div>
+                    <div className="mb-4 p-1">
+                        <GenerateJwt ledgerAccount={ledgerAccount} />
+                    </div>
+                    <div className="mb-4 p-1">        
+                        <PaymentForm ledgerAccount={ledgerAccount} accountData={accountInfo?.account_data} />
+                    </div>
+                </div>}
             </div>
-            <div>
-                <div className="text-slate-800 text-lg font-bold">Create Payment Tx</div>
-                <p className="mb-2">Use the ledger device to sign a payment payload.</p>
-                <PaymentForm ledgerAccount={ledgerAccount} accountData={accountInfo?.account_data} />
-            </div>
-        </div>}
-
-
     </div>
     )
 };
