@@ -56,8 +56,6 @@ const PaymentForm = ({ledgerAccount, accountData}) => {
         setError(null);
         setSignedTx(null);
 
-        // console.log("payment", payment, ledgerAccount);
-
         signTransaction(transaction=payment)
         .then(signedTx => {
             if (signedTx instanceof Error) {
@@ -86,77 +84,6 @@ const PaymentForm = ({ledgerAccount, accountData}) => {
             if (txr instanceof Error) {
                 setError(`Error submitting transaction: ${txr.message}`);
             } else {
-                // {
-                //     "id": 10,
-                //     "result": {
-                //         "Account": "rp49Enf8TsTrFwxNZAyBcv3F2xUNawz4uQ",
-                //         "Amount": "1000000",
-                //         "Destination": "rB7jaUK567mGTHKwEGPFFZ4wE3sN2z5Yi4",
-                //         "Fee": "12",
-                //         "LastLedgerSequence": 77853155,
-                //         "Sequence": 77843155,
-                //         "SigningPubKey": "029CDF69014B193AEFC9D0BFB5A4AF66AF99DDDF9B6FCB4EB5FD3D4D8B9328A039",
-                //         "TransactionType": "Payment",
-                //         "TxnSignature": "3043021F60D3F2F60F13F12DFF99630FF194A63A0D3066919738658A990FC101D2E6A4022070E3AC7F7FD45D8C01457633BC550346BF1567E6F5FCDA031A34A1F5A9405677",
-                //         "date": 729908712,
-                //         "hash": "C404C9E32378D6212A1591C3E77D7B528D224CBE1D74E1BFABC05386001F5168",
-                //         "inLedger": 77848443,
-                //         "ledger_index": 77848443,
-                //         "meta": {
-                //             "AffectedNodes": [
-                //                 {
-                //                     "ModifiedNode": {
-                //                         "FinalFields": {
-                //                             "Account": "rp49Enf8TsTrFwxNZAyBcv3F2xUNawz4uQ",
-                //                             "Balance": "43999988",
-                //                             "Flags": 0,
-                //                             "OwnerCount": 0,
-                //                             "Sequence": 77843156
-                //                         },
-                //                         "LedgerEntryType": "AccountRoot",
-                //                         "LedgerIndex": "C5CC8A3FB486DCEDEFA3E2F782C78B98826F594BBC32DEAB5EE1DF4FEA56688F",
-                //                         "PreviousFields": {
-                //                             "Balance": "45000000",
-                //                             "Sequence": 77843155
-                //                         },
-                //                         "PreviousTxnID": "92E54802472A6AB10A0606B1BD2274A8CCA7DF5CA8B7A91E4F80A81EAEBC0036",
-                //                         "PreviousTxnLgrSeq": 77843155
-                //                     }
-                //                 },
-                //                 {
-                //                     "ModifiedNode": {
-                //                         "FinalFields": {
-                //                             "Account": "rB7jaUK567mGTHKwEGPFFZ4wE3sN2z5Yi4",
-                //                             "Balance": "44999985",
-                //                             "Flags": 0,
-                //                             "OwnerCount": 0,
-                //                             "Sequence": 77826492
-                //                         },
-                //                         "LedgerEntryType": "AccountRoot",
-                //                         "LedgerIndex": "CF1E817CA4A1EFFD9680E9EF439B583EF44CFAADB24591DA727B8E2CA12BB6BE",
-                //                         "PreviousFields": {
-                //                             "Balance": "43999985"
-                //                         },
-                //                         "PreviousTxnID": "92E54802472A6AB10A0606B1BD2274A8CCA7DF5CA8B7A91E4F80A81EAEBC0036",
-                //                         "PreviousTxnLgrSeq": 77843155
-                //                     }
-                //                 }
-                //             ],
-                //             "TransactionIndex": 40,
-                //             "TransactionResult": "tesSUCCESS",
-                //             "delivered_amount": "1000000"
-                //         },
-                //         "validated": true,
-                //         "warnings": [
-                //             {
-                //                 "id": 1004,
-                //                 "message": "This is a reporting server.  The default behavior of a reporting server is to only return validated data. If you are looking for not yet validated data, include \"ledger_index : current\" in your request, which will cause this server to forward the request to a p2p node. If the forward is successful the response will include \"forwarded\" : \"true\""
-                //             }
-                //         ]
-                //     },
-                //     "type": "response"
-                // }
-                // setError(`Transaction submitted successfully. Transaction hash: ${txr.tx_json.hash}`);
                 setError(null);
                 setSignedTx(null);
                 setPayment(null);
